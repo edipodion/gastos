@@ -1,0 +1,10 @@
+{
+  "name": "Meus Gastos",
+  "short_name": "Gastos",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#0B0B1A",
+  "theme_color": "#0B0B1A",
+  "lang": "pt-BR",
+  "icons": [{ "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }]
+}

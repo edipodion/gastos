@@ -6,7 +6,7 @@
 <meta name="theme-color" content="#0B0B1A">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icon.svg" type="image/svg+xml">
-<link rel="apple-touch-icon" href="icon.svg">
+<link rel="apple-touch-icon" href="icon-192.png">
 <title>Meus Gastos</title>
 <style>
   :root {
@@ -100,8 +100,9 @@ const TITULOS = { home: ["Visão geral","Resumo de entradas, saídas e investime
 const NAV = [["home","📊","Início"],["saida","💸","Saídas"],["entrada","💰","Entradas"],["invest","📈","Invest."],["assinatura","🔁","Assinaturas"],["config","⚙️","Ajustes"]];
 
 /* Novidades: a cada atualização, acrescente a versão nova NO TOPO da lista e ajuste VERSAO. */
-const VERSAO = "1.1.0";
+const VERSAO = "1.2.0";
 const NOVIDADES = [
+  { v: "1.2.0", data: "29/10/2026", itens: ["Instalação como app no Android, com ícone próprio", "O app abre mesmo sem internet (os dados aparecem quando a conexão voltar)"] },
   { v: "1.1.0", data: "28/10/2026", itens: ["Aviso de novidades ao abrir o app após uma atualização", "Versão do app visível no login e na Visão geral"] },
   { v: "1.0.0", data: "27/10/2026", itens: ["App online com login Google e dados no Supabase", "Lançamentos recorrentes e importação/exportação de CSV"] },
 ];
@@ -383,6 +384,9 @@ function exportar() {
   const a = Object.assign(document.createElement("a"), { href: URL.createObjectURL(new Blob(["﻿" + csv], { type: "text/csv" })), download: "meus-gastos.csv" });
   a.click(); URL.revokeObjectURL(a.href);
 }
+
+/* ---------- instalação como app ---------- */
+try { if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js"); } catch (e) {}
 
 /* ---------- início ---------- */
 (async () => {

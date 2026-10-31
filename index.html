@@ -79,13 +79,24 @@
   .panel { min-width: 0; }
   .grid2 > * { min-width: 0; }
   .btn-tema { width: 40px; padding: 0; display: inline-grid; place-items: center; }
+  .parc { padding: 14px 0; border-top: 1px solid var(--line); }
+  .parc:first-of-type { border-top: 0; }
+  .parc.fim { opacity: .6; }
+  .parc .topo { display: flex; align-items: center; gap: 8px; }
+  .parc .topo .n { flex: 1; min-width: 0; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .parc .vp { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; margin-top: 8px; }
+  .parc .vp b { font-size: 20px; font-weight: 800; }
+  .parc .vp span { font-size: 13px; color: var(--muted); }
+  .parc .bar { height: 8px; margin-top: 8px; }
+  .parc .det { display: grid; grid-template-columns: 1fr 1fr; gap: 4px 12px; margin-top: 8px; font-size: 12px; color: var(--muted); }
+  .parc .det b { color: var(--text); font-weight: 600; }
   .bar { height: 10px; border-radius: 6px; background: var(--track); overflow: hidden; margin-top: 8px; }
   .bar > i { display: block; height: 100%; border-radius: 6px; }
   .empty { color: var(--muted); padding: 20px 0; text-align: center; font-size: 14px; }
   .grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr)); gap: 16px; }
   .nav { position: fixed; bottom: 0; left: 0; right: 0; display: flex; gap: 4px; padding: 8px 8px calc(8px + env(safe-area-inset-bottom));
          background: var(--navbg); backdrop-filter: blur(10px); border-top: 1px solid var(--line); overflow-x: auto; z-index: 5; }
-  .nav button { flex: 1 0 auto; min-width: 64px; padding: 8px 6px; border: 0; border-radius: 10px; background: none; cursor: pointer;
+  .nav button { flex: 1 1 0; min-width: 0; padding: 8px 2px; border: 0; border-radius: 10px; background: none; cursor: pointer;
                 color: var(--muted); font-size: 11px; font-weight: 600; display: flex; flex-direction: column; align-items: center; gap: 2px; }
   .nav button svg.i { width: 22px; height: 22px; }
   .nav button.on { background: var(--navon); color: var(--navfg); }
@@ -129,16 +140,17 @@ const CATS = { saida: ["Essencial","Lazer","Cotidiano"], entrada: ["Salário","B
   invest: ["Renda fixa","Ações","Fundos imobiliários","Cripto","Reserva de emergência","Outros"], assinatura: [] };
 const TITULOS = { home: ["Visão geral","Resumo de entradas, saídas e investimentos"], saida: ["Saídas","Acompanhe suas despesas"],
   entrada: ["Entradas","Valores recebidos"], invest: ["Investimentos","Seus aportes"], assinatura: ["Assinaturas","Cobranças recorrentes"],
-  config: ["Ajustes","Metas, recorrentes e importação"] };
+  parcelada: ["Parceladas","Compras no cartão (não entram no total da Visão geral)"], config: ["Ajustes","Metas, recorrentes e importação"] };
 const ICONES = {
   home: '<path d="M3 11l9-8 9 8M5 10v10h14V10"/>', saida: '<path d="M7 17L17 7M8 7h9v9"/>', entrada: '<path d="M17 7L7 17M16 17H7V8"/>',
   invest: '<path d="M3 17l6-6 4 4 8-8M15 7h6v6"/>', assinatura: '<path d="M17 2l4 4-4 4M3 11V9a3 3 0 0 1 3-3h15M7 22l-4-4 4-4M21 13v2a3 3 0 0 1-3 3H3"/>',
+  parcelada: '<rect x="2" y="5" width="20" height="14" rx="3"/><path d="M2 10h20M6 15h4"/>',
   config: '<path d="M4 6h9M17 6h3M4 12h3M11 12h9M4 18h11M19 18h1"/><circle cx="15" cy="6" r="2"/><circle cx="9" cy="12" r="2"/><circle cx="17" cy="18" r="2"/>',
   editar: '<path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/>', lixo: '<path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14M10 11v6M14 11v6"/>',
   sol: '<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>',
   lua: '<path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/>' };
 const ico = k => `<svg class="i" viewBox="0 0 24 24" aria-hidden="true">${ICONES[k]}</svg>`;
-const NAV = [["home","Início"],["saida","Saídas"],["entrada","Entradas"],["invest","Invest."],["assinatura","Assinaturas"],["config","Ajustes"]];
+const NAV = [["home","Início"],["saida","Saídas"],["entrada","Entradas"],["invest","Invest."],["assinatura","Assin."],["parcelada","Parcelas"],["config","Ajustes"]];
 /* Tema claro/escuro: o botão alterna e a escolha fica guardada no aparelho */
 const temaAtual = () => document.documentElement.getAttribute("data-tema");
 const btnTema = () => `<button class="btn ghost btn-tema" aria-label="Trocar tema claro/escuro" title="Trocar tema">${ico(temaAtual() === "claro" ? "lua" : "sol")}</button>`;
@@ -153,8 +165,9 @@ function ligarTema() {
 }
 
 /* Novidades: a cada atualização, acrescente a versão nova NO TOPO da lista e ajuste VERSAO. */
-const VERSAO = "1.4.1";
+const VERSAO = "1.5.0";
 const NOVIDADES = [
+  { v: "1.5.0", data: "31/10/2026", itens: ["Nova página Parceladas: acompanhe compras no cartão, parcelas restantes e quanto falta pagar (não entram no total da Visão geral)"] },
   { v: "1.4.1", data: "31/10/2026", itens: ["Corrigido: o botão de importar CSV, em Ajustes, não sai mais da caixa no celular"] },
   { v: "1.4.0", data: "31/10/2026", itens: ["Visual novo, com dois temas: Claro e Escuro (Grafite e Esmeralda)", "Botão para trocar de tema, no topo de cada tela", "Fontes novas e ícones de linha no lugar dos emojis"] },
   { v: "1.3.1", data: "31/10/2026", itens: ["Novo ícone do app: um cofrinho"] },
@@ -177,7 +190,7 @@ function mostrarNovidades(todas) {
 }
 
 const hoje = new Date();
-const S = { user: null, rows: [], recs: [], metas: { essencial: 50, lazer: 43.5, investimento: 6.5 },
+const S = { user: null, rows: [], parc: [], recs: [], metas: { essencial: 50, lazer: 43.5, investimento: 6.5 },
   page: "home", ano: hoje.getFullYear(), mes: hoje.getMonth() + 1, busca: "", filtroCat: "Todos", filtroSt: "Todos", hover: null };
 
 const cfgOk = window.CONFIG && !window.CONFIG.SUPABASE_URL.startsWith("COLE");
@@ -199,6 +212,8 @@ async function load() {
     run(sb.from("metas").select("*").maybeSingle()),
   ]);
   S.rows = rows; S.recs = recs; if (metas) S.metas = metas;
+  const p = await sb.from("parceladas").select("*").order("data_compra", { ascending: false }); // tolera a tabela ainda não criada
+  S.parc = p.error ? [] : p.data;
   render();
   if (!load.avisou) { load.avisou = true; mostrarNovidades(false); }
 }
@@ -217,14 +232,14 @@ function render() {
   }
   const [t, st] = TITULOS[S.page];
   const anos = [...new Set([hoje.getFullYear(), S.ano, ...S.rows.map(r => r.ano).filter(Boolean)])].sort();
-  const comFiltroPeriodo = !["assinatura","config"].includes(S.page);
+  const comFiltroPeriodo = !["assinatura","parcelada","config"].includes(S.page);
   $("#app").innerHTML = `<div class="wrap">
     <header class="top"><div><h1>${t}</h1><p class="sub">${st}${comFiltroPeriodo ? " · " + (S.mes < 0 ? "todos os meses" : MESES_F[S.mes - 1]) + " de " + S.ano : ""}</p></div>
       <div class="filters">${comFiltroPeriodo ? `
         <select class="fld" id="fMes" aria-label="Mês"><option value="-1">Todos os meses</option>${MESES_F.map((m, i) => `<option value="${i + 1}" ${S.mes === i + 1 ? "selected" : ""}>${m}</option>`).join("")}</select>
         <select class="fld" id="fAno" aria-label="Ano">${anos.map(a => `<option ${a === S.ano ? "selected" : ""}>${a}</option>`).join("")}</select>
       ` : ""}${btnTema()}</div></header>
-    ${S.page === "home" ? home() : S.page === "config" ? config() : lista(S.page)}
+    ${S.page === "home" ? home() : S.page === "config" ? config() : S.page === "parcelada" ? parceladas() : lista(S.page)}
     ${S.page === "home" ? `<p class="sub" style="text-align:center">Versão ${VERSAO} · <a href="#" id="verNovo" style="color:inherit">Ver novidades</a></p>` : ""}
   </div>
   <nav class="nav">${NAV.map(([k, l]) => `<button data-p="${k}" class="${S.page === k ? "on" : ""}">${ico(k)}${l}</button>`).join("")}</nav>`;
@@ -310,6 +325,61 @@ function lista(tipo) {
   </div>`;
 }
 
+/* ---------- compras parceladas ---------- */
+const dataBR = iso => iso.split("-").reverse().join("/");
+/* A 1ª parcela cai na fatura que fecha em/depois da compra; uma parcela conta como "faturada" quando o fechamento já passou. */
+function calcParc(p, ref = new Date()) {
+  const [a, m, d] = p.data_compra.split("-").map(Number), n = +p.parcelas, f = +p.dia_fechamento;
+  const m0 = a * 12 + (m - 1) + (d > f ? 1 : 0);
+  const fecha = k => { const t = m0 + k, y = Math.floor(t / 12), mm = t % 12; return new Date(y, mm, Math.min(f, new Date(y, mm + 1, 0).getDate())); };
+  const h = new Date(ref.getFullYear(), ref.getMonth(), ref.getDate());
+  let pagas = 0; while (pagas < n && fecha(pagas) < h) pagas++;
+  const v = Number(p.valor_total) / n, ult = fecha(n - 1);
+  return { n, pagas, restam: n - pagas, v, falta: (n - pagas) * v, proxima: pagas < n ? fecha(pagas) : null, fim: MESES[ult.getMonth()] + "/" + String(ult.getFullYear()).slice(2) };
+}
+function parceladas() {
+  const q = S.busca.trim().toLowerCase();
+  const itens = S.parc.filter(p => !q || (p.nome + " " + (p.cartao || "")).toLowerCase().includes(q))
+    .map(p => ({ p, c: calcParc(p) })).sort((x, y) => (x.c.restam === 0) - (y.c.restam === 0));
+  const ativas = itens.filter(i => i.c.restam > 0);
+  return cards([["Falta pagar", brl(ativas.reduce((t, i) => t + i.c.falta, 0)), `${ativas.length} compras ativas`],
+                ["Parcelas por mês", brl(ativas.reduce((t, i) => t + i.c.v, 0)), "soma das ativas"]]) + `<div class="panel">
+    <div class="filters" style="margin-bottom:8px">
+      <input class="fld" id="busca" type="search" placeholder="Buscar" value="${esc(S.busca)}" style="flex:1;min-width:120px">
+      <button class="btn" id="novoP">+ Nova</button>
+    </div>
+    ${itens.length ? itens.map(({ p, c }) => `<div class="parc ${c.restam ? "" : "fim"}">
+      <div class="topo"><div class="n">${esc(p.nome)}</div>${p.cartao ? `<span class="tag">${esc(p.cartao)}</span>` : ""}
+        <button class="icon" data-edp="${p.id}" aria-label="Editar">${ico("editar")}</button>
+        <button class="icon" data-delp="${p.id}" aria-label="Excluir">${ico("lixo")}</button></div>
+      <div class="vp"><b>${c.n}x ${brl(c.v)}</b><span>${c.restam ? `restam ${c.restam} de ${c.n}` : "quitada"}</span></div>
+      <div class="bar"><i style="width:${c.pagas / c.n * 100}%;background:var(--m1)"></i></div>
+      <div class="det">
+        <span>Falta pagar <b>${brl(c.falta)}</b></span><span>Total <b>${brl(p.valor_total)}</b></span>
+        <span>Compra <b>${dataBR(p.data_compra)}</b></span><span>Vira dia <b>${p.dia_fechamento}</b></span>
+        <span>${c.proxima ? `Próxima fatura <b>${String(c.proxima.getDate()).padStart(2, "0")}/${String(c.proxima.getMonth() + 1).padStart(2, "0")}</b>` : ""}</span><span>Última parcela <b>${c.fim}</b></span>
+      </div></div>`).join("") : `<div class="empty">Nenhuma compra parcelada. Toque em “+ Nova”.</div>`}
+  </div>`;
+}
+function formParc(r) {
+  const cartoes = [...new Set(S.parc.map(p => p.cartao).filter(Boolean))];
+  abrirForm(`<h2>${r ? "Editar" : "Nova"} · Compra parcelada</h2>
+    <label>Nome<input class="fld" name="nome" required maxlength="80" value="${esc(r?.nome)}"></label>
+    <label>Cartão<input class="fld" name="cartao" maxlength="40" list="cartoes" placeholder="Ex.: Nubank" value="${esc(r?.cartao)}"></label>
+    <datalist id="cartoes">${cartoes.map(c => `<option value="${esc(c)}">`).join("")}</datalist>
+    <label>Data da compra<input class="fld" name="data_compra" type="date" required value="${r?.data_compra ?? new Date().toLocaleDateString("sv")}"></label>
+    <div class="two"><label>Parcelas<input class="fld" name="parcelas" type="number" min="2" max="60" required value="${r?.parcelas ?? ""}"></label>
+      <label>Vira dia<input class="fld" name="dia_fechamento" type="number" min="1" max="31" required value="${r?.dia_fechamento ?? ""}"></label></div>
+    <label>Valor total (R$)<input class="fld" name="valor_total" required inputmode="decimal" value="${r ? String(r.valor_total).replace(".", ",") : ""}"></label>`,
+  async f => {
+    const valor = num(f.get("valor_total")); if (isNaN(valor) || valor <= 0) return "Valor inválido";
+    const row = { nome: f.get("nome").trim(), cartao: f.get("cartao").trim() || null, data_compra: f.get("data_compra"), parcelas: +f.get("parcelas"), dia_fechamento: +f.get("dia_fechamento"), valor_total: valor };
+    if (r) await run(sb.from("parceladas").update(row).eq("id", r.id), "Atualizado");
+    else await run(sb.from("parceladas").insert(row), "Adicionado");
+    await load();
+  });
+}
+
 function config() {
   const m = S.metas, tl = { saida: "Saída", entrada: "Entrada", invest: "Investimento" };
   return `<div class="grid2">
@@ -346,6 +416,13 @@ function bind() {
   document.querySelectorAll("[data-st]").forEach(b => b.onclick = async () => {
     const r = S.rows.find(x => x.id === b.dataset.st), n = { Pago: "Em aberto", "Em aberto": "Pago", Ativa: "Inativa", Inativa: "Ativa" }[r.status];
     await run(sb.from("lancamentos").update({ status: n }).eq("id", r.id)); await load();
+  });
+  $("#novoP") && ($("#novoP").onclick = () => formParc());
+  document.querySelectorAll("[data-edp]").forEach(b => b.onclick = () => formParc(S.parc.find(p => p.id === b.dataset.edp)));
+  document.querySelectorAll("[data-delp]").forEach(b => b.onclick = async () => {
+    const p = S.parc.find(x => x.id === b.dataset.delp);
+    if (!confirm(`Excluir “${p.nome}” (${brl(p.valor_total)})?`)) return;
+    await run(sb.from("parceladas").delete().eq("id", p.id), "Excluído"); await load();
   });
   if (S.page !== "config") return;
   $("#metas").onsubmit = async e => {

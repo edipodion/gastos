@@ -18,7 +18,7 @@
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="icon-192.png">
-<title>Meus Gastos</title>
+<title>SobrouDinheiro?</title>
 <style>
   :root, html[data-tema="escuro"] {
     --bg: #121415; --card: #1C1F21; --line: #2B2F32; --text: #ECEFF1; --muted: #9AA5AB;
@@ -165,8 +165,9 @@ function ligarTema() {
 }
 
 /* Novidades: a cada atualização, acrescente a versão nova NO TOPO da lista e ajuste VERSAO. */
-const VERSAO = "1.5.0";
+const VERSAO = "1.5.1";
 const NOVIDADES = [
+  { v: "1.5.1", data: "31/10/2026", itens: ["O app agora se chama SobrouDinheiro?"] },
   { v: "1.5.0", data: "31/10/2026", itens: ["Nova página Parceladas: acompanhe compras no cartão, parcelas restantes e quanto falta pagar (não entram no total da Visão geral)"] },
   { v: "1.4.1", data: "31/10/2026", itens: ["Corrigido: o botão de importar CSV, em Ajustes, não sai mais da caixa no celular"] },
   { v: "1.4.0", data: "31/10/2026", itens: ["Visual novo, com dois temas: Claro e Escuro (Grafite e Esmeralda)", "Botão para trocar de tema, no topo de cada tela", "Fontes novas e ícones de linha no lugar dos emojis"] },
@@ -224,7 +225,7 @@ const noPeriodo = r => r.ano === S.ano && (S.mes < 0 || r.mes === S.mes);
 function render() {
   if (!cfgOk) { $("#app").innerHTML = `<div class="login"><h1>Falta configurar</h1><p class="sub">Preencha o arquivo <b>config.js</b> com a URL e a chave do seu projeto Supabase (veja o LEIA-ME).</p></div>`; return; }
   if (!S.user) {
-    $("#app").innerHTML = `<div class="login"><img src="icon.svg" alt=""><h1>Meus Gastos</h1><p class="sub">Entre para acessar seus dados em qualquer aparelho.</p>
+    $("#app").innerHTML = `<div class="login"><img src="icon.svg" alt=""><h1>SobrouDinheiro?</h1><p class="sub">Entre para acessar seus dados em qualquer aparelho.</p>
       <button class="btn" id="login">Entrar com Google</button><p class="sub">Versão ${VERSAO}</p>${btnTema()}</div>`;
     ligarTema();
     $("#login").onclick = () => sb.auth.signInWithOAuth({ provider: "google", options: { redirectTo: location.origin + location.pathname } });

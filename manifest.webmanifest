@@ -1,6 +1,6 @@
 {
-  "name": "Meus Gastos",
-  "short_name": "Gastos",
+  "name": "SobrouDinheiro?",
+  "short_name": "SobrouDinheiro?",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",

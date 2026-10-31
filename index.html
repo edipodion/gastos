@@ -3,44 +3,63 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#0B0B1A">
+<meta name="theme-color" content="#121415">
+<script>
+/* Tema (claro/escuro): aplica antes de desenhar a tela para não piscar */
+(function () {
+  var t = null; try { t = localStorage.getItem("tema"); } catch (e) {}
+  if (t !== "claro" && t !== "escuro") t = matchMedia("(prefers-color-scheme: light)").matches ? "claro" : "escuro";
+  document.documentElement.setAttribute("data-tema", t);
+  document.querySelector('meta[name="theme-color"]').setAttribute("content", t === "claro" ? "#F6F8FB" : "#121415");
+})();
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="icon-192.png">
 <title>Meus Gastos</title>
 <style>
-  :root {
-    --bg: #0B0B1A; --card: rgba(255,255,255,.06); --line: rgba(255,255,255,.12);
-    --text: #F4F3FF; --muted: #B9B6DC; --ent: #3DD9EB; --sai: #FF7AA8; --ok: #2CC6A0; --warn: #FFB020;
-    --grad: linear-gradient(135deg,#6C5CE7,#B04DFF);
+  :root, html[data-tema="escuro"] {
+    --bg: #121415; --card: #1C1F21; --line: #2B2F32; --text: #ECEFF1; --muted: #9AA5AB;
+    --ent: #34D399; --sai: #FB7185; --acc: #34D399; --onacc: #062B1D;
+    --fld: #232729; --dlg: #1C1F21; --navbg: rgba(18,20,21,.94); --navon: rgba(52,211,153,.14); --navfg: #34D399;
+    --track: rgba(255,255,255,.1); --hover: rgba(255,255,255,.06); --tagbg: rgba(255,255,255,.08);
+    --okbg: rgba(52,211,153,.16); --okfg: #34D399; --openbg: rgba(251,191,36,.16); --openfg: #FBBF24;
+    --err: #FB7185; --m1: #60A5FA; --m2: #FBBF24; --m3: #34D399; --shadow: rgba(0,0,0,.45);
+    --font: "Space Grotesk", system-ui, -apple-system, "Segoe UI", sans-serif;
+    color-scheme: dark;
+  }
+  html[data-tema="claro"] {
+    --bg: #F6F8FB; --card: #FFFFFF; --line: #E4E8EF; --text: #12202F; --muted: #5B6B7B;
+    --ent: #0E9F6E; --sai: #E5484D; --acc: #12202F; --onacc: #FFFFFF;
+    --fld: #FFFFFF; --dlg: #FFFFFF; --navbg: rgba(255,255,255,.94); --navon: rgba(18,32,47,.08); --navfg: #12202F;
+    --track: #E4E8EF; --hover: rgba(18,32,47,.06); --tagbg: rgba(18,32,47,.07);
+    --okbg: #DDF5EA; --okfg: #0A7A55; --openbg: #FFF1D6; --openfg: #9A5B00;
+    --err: #C7343A; --m1: #3B82F6; --m2: #F59E0B; --m3: #0E9F6E; --shadow: rgba(18,32,47,.18);
+    --font: "Plus Jakarta Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+    color-scheme: light;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body {
-    font-family: system-ui, -apple-system, "Segoe UI", sans-serif; color: var(--text); min-height: 100vh;
-    background: radial-gradient(900px 500px at 8% -5%, rgba(108,92,231,.45), transparent 60%),
-                radial-gradient(800px 500px at 100% 0%, rgba(255,77,157,.28), transparent 60%), var(--bg);
-    background-attachment: fixed; padding-bottom: 84px;
+    font-family: var(--font); color: var(--text); min-height: 100vh; background: var(--bg); padding-bottom: 84px;
   }
   button, input, select { font: inherit; color: inherit; }
   .wrap { max-width: 1100px; margin: 0 auto; padding: 16px; display: flex; flex-direction: column; gap: 16px; }
   header.top { display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-end; justify-content: space-between; }
-  h1 { font-size: 26px; font-weight: 800; letter-spacing: -.02em;
-       background: linear-gradient(90deg,#fff,#CBBFFF 50%,#FF9BCB); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  h1 { font-size: 26px; font-weight: 800; letter-spacing: -.02em; }
   .sub { color: var(--muted); font-size: 13px; margin-top: 4px; }
   .filters { display: flex; flex-wrap: wrap; gap: 8px; }
-  .fld { height: 40px; padding: 0 12px; border-radius: 10px; border: 1px solid var(--line); background: #17172e; min-width: 0; }
-  .fld:focus-visible, .btn:focus-visible, .nav button:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
-  .btn { height: 40px; padding: 0 16px; border: 0; border-radius: 10px; font-weight: 700; cursor: pointer; background: var(--grad); }
-  .btn.ghost { background: var(--card); border: 1px solid var(--line); }
+  .fld { height: 40px; padding: 0 12px; border-radius: 10px; border: 1px solid var(--line); background: var(--fld); min-width: 0; }
+  .fld:focus-visible, .btn:focus-visible, .nav button:focus-visible { outline: 2px solid var(--text); outline-offset: 2px; }
+  .btn { height: 40px; padding: 0 16px; border: 0; border-radius: 10px; font-weight: 700; cursor: pointer; background: var(--acc); color: var(--onacc); }
+  .btn.ghost { color: var(--text); background: var(--card); border: 1px solid var(--line); }
   .btn.small { height: 32px; padding: 0 10px; font-size: 13px; }
   .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; }
-  .stat { padding: 16px; border-radius: 16px; background: var(--grad); }
-  .stat:nth-child(2) { background: linear-gradient(135deg,#E0489A,#FF7A59); }
-  .stat:nth-child(3) { background: linear-gradient(135deg,#0EA5C6,#3D7BFF); }
-  .stat:nth-child(4) { background: linear-gradient(135deg,#14A38B,#2CC6A0); }
-  .stat .l { font-size: 12px; font-weight: 600; opacity: .9; }
+  .stat { padding: 16px; border-radius: 16px; background: var(--card); border: 1px solid var(--line); }
+  .stat .l { font-size: 12px; font-weight: 600; color: var(--muted); }
   .stat .v { font-size: 22px; font-weight: 800; margin-top: 6px; }
-  .stat .h { font-size: 11px; opacity: .85; margin-top: 4px; }
+  .stat .h { font-size: 11px; color: var(--muted); margin-top: 4px; }
   .panel { padding: 16px; border-radius: 18px; background: var(--card); border: 1px solid var(--line); }
   .panel h2 { font-size: 16px; margin-bottom: 4px; }
   .row { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-top: 1px solid var(--line); }
@@ -49,35 +68,38 @@
   .row .n { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .row .m { font-size: 12px; color: var(--muted); margin-top: 2px; }
   .row .val { font-weight: 700; white-space: nowrap; }
-  .tag { font-size: 11px; font-weight: 700; padding: 3px 9px; border-radius: 99px; border: 0; cursor: pointer; background: rgba(255,255,255,.1); }
-  .tag.ok { background: rgba(44,198,160,.2); color: #6FF0CF; }
-  .tag.open { background: rgba(255,176,32,.2); color: #FFD27A; }
-  .icon { background: none; border: 0; cursor: pointer; font-size: 16px; padding: 6px; opacity: .8; }
-  .bar { height: 10px; border-radius: 6px; background: rgba(255,255,255,.1); overflow: hidden; margin-top: 8px; }
+  .tag { font-size: 11px; font-weight: 700; padding: 3px 9px; border-radius: 99px; border: 0; cursor: pointer; background: var(--tagbg); color: var(--text); }
+  .tag.ok { background: var(--okbg); color: var(--okfg); }
+  .tag.open { background: var(--openbg); color: var(--openfg); }
+  .icon { background: none; border: 0; cursor: pointer; padding: 6px; color: var(--muted); display: inline-grid; place-items: center; }
+  .icon:hover { color: var(--text); }
+  svg.i { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; flex: none; }
+  .btn-tema { width: 40px; padding: 0; display: inline-grid; place-items: center; }
+  .bar { height: 10px; border-radius: 6px; background: var(--track); overflow: hidden; margin-top: 8px; }
   .bar > i { display: block; height: 100%; border-radius: 6px; }
   .empty { color: var(--muted); padding: 20px 0; text-align: center; font-size: 14px; }
   .grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; }
   .nav { position: fixed; bottom: 0; left: 0; right: 0; display: flex; gap: 4px; padding: 8px 8px calc(8px + env(safe-area-inset-bottom));
-         background: rgba(11,11,26,.92); backdrop-filter: blur(10px); border-top: 1px solid var(--line); overflow-x: auto; z-index: 5; }
+         background: var(--navbg); backdrop-filter: blur(10px); border-top: 1px solid var(--line); overflow-x: auto; z-index: 5; }
   .nav button { flex: 1 0 auto; min-width: 64px; padding: 8px 6px; border: 0; border-radius: 10px; background: none; cursor: pointer;
                 color: var(--muted); font-size: 11px; font-weight: 600; display: flex; flex-direction: column; align-items: center; gap: 2px; }
-  .nav button .e { font-size: 18px; }
-  .nav button.on { background: rgba(255,255,255,.12); color: #fff; }
+  .nav button svg.i { width: 22px; height: 22px; }
+  .nav button.on { background: var(--navon); color: var(--navfg); }
   @media (min-width: 900px) { .nav { justify-content: center; } .nav button { flex: 0 0 auto; min-width: 96px; } }
-  dialog { margin: auto; width: min(420px, 94vw); border: 1px solid var(--line); border-radius: 18px; background: #14142b; color: var(--text); padding: 20px; }
+  dialog { margin: auto; width: min(420px, 94vw); border: 1px solid var(--line); border-radius: 18px; background: var(--dlg); color: var(--text); padding: 20px; }
   dialog::backdrop { background: rgba(0,0,0,.6); }
   dialog form { display: flex; flex-direction: column; gap: 12px; }
   label { display: flex; flex-direction: column; gap: 4px; font-size: 12px; color: var(--muted); font-weight: 600; }
   label.chk { flex-direction: row; align-items: center; gap: 8px; }
   .two { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-  .err { color: #FF8FA8; font-size: 13px; min-height: 18px; }
+  .err { color: var(--err); font-size: 13px; min-height: 18px; }
   .login { min-height: 80vh; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; text-align: center; padding: 24px; }
   .login img { width: 72px; height: 72px; border-radius: 18px; }
-  #toast { position: fixed; left: 50%; bottom: 96px; transform: translateX(-50%); background: #fff; color: #111; padding: 10px 16px;
+  #toast { position: fixed; left: 50%; bottom: 96px; transform: translateX(-50%); background: var(--text); color: var(--bg); padding: 10px 16px;
            border-radius: 10px; font-size: 14px; font-weight: 600; opacity: 0; pointer-events: none; transition: opacity .2s; z-index: 20; }
   #toast.show { opacity: 1; }
   #instalar { position: fixed; left: 12px; right: 12px; bottom: 84px; z-index: 6; max-width: 520px; margin: 0 auto; padding: 14px 16px;
-              border-radius: 16px; background: #1b1b38; border: 1px solid var(--line); box-shadow: 0 10px 30px rgba(0,0,0,.45); display: flex; flex-direction: column; gap: 10px; }
+              border-radius: 16px; background: var(--dlg); border: 1px solid var(--line); box-shadow: 0 10px 30px var(--shadow); display: flex; flex-direction: column; gap: 10px; }
   #instalar[hidden] { display: none; }
   #instalar .t { font-weight: 700; }
   #instalar .d { font-size: 13px; color: var(--muted); }
@@ -104,11 +126,32 @@ const CATS = { saida: ["Essencial","Lazer","Cotidiano"], entrada: ["Salário","B
 const TITULOS = { home: ["Visão geral","Resumo de entradas, saídas e investimentos"], saida: ["Saídas","Acompanhe suas despesas"],
   entrada: ["Entradas","Valores recebidos"], invest: ["Investimentos","Seus aportes"], assinatura: ["Assinaturas","Cobranças recorrentes"],
   config: ["Ajustes","Metas, recorrentes e importação"] };
-const NAV = [["home","📊","Início"],["saida","💸","Saídas"],["entrada","💰","Entradas"],["invest","📈","Invest."],["assinatura","🔁","Assinaturas"],["config","⚙️","Ajustes"]];
+const ICONES = {
+  home: '<path d="M3 11l9-8 9 8M5 10v10h14V10"/>', saida: '<path d="M7 17L17 7M8 7h9v9"/>', entrada: '<path d="M17 7L7 17M16 17H7V8"/>',
+  invest: '<path d="M3 17l6-6 4 4 8-8M15 7h6v6"/>', assinatura: '<path d="M17 2l4 4-4 4M3 11V9a3 3 0 0 1 3-3h15M7 22l-4-4 4-4M21 13v2a3 3 0 0 1-3 3H3"/>',
+  config: '<path d="M4 6h9M17 6h3M4 12h3M11 12h9M4 18h11M19 18h1"/><circle cx="15" cy="6" r="2"/><circle cx="9" cy="12" r="2"/><circle cx="17" cy="18" r="2"/>',
+  editar: '<path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/>', lixo: '<path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14M10 11v6M14 11v6"/>',
+  sol: '<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>',
+  lua: '<path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/>' };
+const ico = k => `<svg class="i" viewBox="0 0 24 24" aria-hidden="true">${ICONES[k]}</svg>`;
+const NAV = [["home","Início"],["saida","Saídas"],["entrada","Entradas"],["invest","Invest."],["assinatura","Assinaturas"],["config","Ajustes"]];
+/* Tema claro/escuro: o botão alterna e a escolha fica guardada no aparelho */
+const temaAtual = () => document.documentElement.getAttribute("data-tema");
+const btnTema = () => `<button class="btn ghost btn-tema" aria-label="Trocar tema claro/escuro" title="Trocar tema">${ico(temaAtual() === "claro" ? "lua" : "sol")}</button>`;
+function ligarTema() {
+  document.querySelectorAll(".btn-tema").forEach(b => b.onclick = () => {
+    const t = temaAtual() === "claro" ? "escuro" : "claro";
+    document.documentElement.setAttribute("data-tema", t);
+    try { localStorage.setItem("tema", t); } catch (e) {}
+    document.querySelector('meta[name="theme-color"]').setAttribute("content", t === "claro" ? "#F6F8FB" : "#121415");
+    document.querySelectorAll(".btn-tema").forEach(x => x.innerHTML = ico(t === "claro" ? "lua" : "sol"));
+  });
+}
 
 /* Novidades: a cada atualização, acrescente a versão nova NO TOPO da lista e ajuste VERSAO. */
-const VERSAO = "1.3.1";
+const VERSAO = "1.4.0";
 const NOVIDADES = [
+  { v: "1.4.0", data: "31/10/2026", itens: ["Visual novo, com dois temas: Claro e Escuro (Grafite e Esmeralda)", "Botão para trocar de tema, no topo de cada tela", "Fontes novas e ícones de linha no lugar dos emojis"] },
   { v: "1.3.1", data: "31/10/2026", itens: ["Novo ícone do app: um cofrinho"] },
   { v: "1.3.0", data: "31/10/2026", itens: ["Aviso para instalar o app no celular, com botão de instalar no Android e passo a passo no iPhone"] },
   { v: "1.2.0", data: "29/10/2026", itens: ["Instalação como app no Android, com ícone próprio", "O app abre mesmo sem internet (os dados aparecem quando a conexão voltar)"] },
@@ -121,7 +164,7 @@ function mostrarNovidades(todas) {
   const lista = todas ? NOVIDADES : vista ? NOVIDADES.filter(n => cmpVer(n.v, vista) > 0) : NOVIDADES.slice(0, 1);
   try { localStorage.setItem("versao_vista", VERSAO); } catch (e) {}
   if (!lista.length) return;
-  $("#novoConteudo").innerHTML = `<h2>${todas ? "Novidades" : "App atualizado 🎉"}</h2>` +
+  $("#novoConteudo").innerHTML = `<h2>${todas ? "Novidades" : "App atualizado"}</h2>` +
     lista.map(n => `<div><b>Versão ${esc(n.v)}</b> <span class="sub">· ${esc(n.data)}</span><ul style="margin:6px 0 0 18px;font-size:14px;line-height:1.6">${n.itens.map(i => `<li>${esc(i)}</li>`).join("")}</ul></div>`).join("") +
     `<button class="btn" id="fechaNovo">Entendi</button>`;
   $("#fechaNovo").onclick = () => $("#dlgNovo").close();
@@ -162,7 +205,8 @@ function render() {
   if (!cfgOk) { $("#app").innerHTML = `<div class="login"><h1>Falta configurar</h1><p class="sub">Preencha o arquivo <b>config.js</b> com a URL e a chave do seu projeto Supabase (veja o LEIA-ME).</p></div>`; return; }
   if (!S.user) {
     $("#app").innerHTML = `<div class="login"><img src="icon.svg" alt=""><h1>Meus Gastos</h1><p class="sub">Entre para acessar seus dados em qualquer aparelho.</p>
-      <button class="btn" id="login">Entrar com Google</button><p class="sub">Versão ${VERSAO}</p></div>`;
+      <button class="btn" id="login">Entrar com Google</button><p class="sub">Versão ${VERSAO}</p>${btnTema()}</div>`;
+    ligarTema();
     $("#login").onclick = () => sb.auth.signInWithOAuth({ provider: "google", options: { redirectTo: location.origin + location.pathname } });
     return;
   }
@@ -171,18 +215,19 @@ function render() {
   const comFiltroPeriodo = !["assinatura","config"].includes(S.page);
   $("#app").innerHTML = `<div class="wrap">
     <header class="top"><div><h1>${t}</h1><p class="sub">${st}${comFiltroPeriodo ? " · " + (S.mes < 0 ? "todos os meses" : MESES_F[S.mes - 1]) + " de " + S.ano : ""}</p></div>
-      ${comFiltroPeriodo ? `<div class="filters">
+      <div class="filters">${comFiltroPeriodo ? `
         <select class="fld" id="fMes" aria-label="Mês"><option value="-1">Todos os meses</option>${MESES_F.map((m, i) => `<option value="${i + 1}" ${S.mes === i + 1 ? "selected" : ""}>${m}</option>`).join("")}</select>
         <select class="fld" id="fAno" aria-label="Ano">${anos.map(a => `<option ${a === S.ano ? "selected" : ""}>${a}</option>`).join("")}</select>
-      </div>` : ""}</header>
+      ` : ""}${btnTema()}</div></header>
     ${S.page === "home" ? home() : S.page === "config" ? config() : lista(S.page)}
     ${S.page === "home" ? `<p class="sub" style="text-align:center">Versão ${VERSAO} · <a href="#" id="verNovo" style="color:inherit">Ver novidades</a></p>` : ""}
   </div>
-  <nav class="nav">${NAV.map(([k, e, l]) => `<button data-p="${k}" class="${S.page === k ? "on" : ""}"><span class="e">${e}</span>${l}</button>`).join("")}</nav>`;
+  <nav class="nav">${NAV.map(([k, l]) => `<button data-p="${k}" class="${S.page === k ? "on" : ""}">${ico(k)}${l}</button>`).join("")}</nav>`;
   document.querySelectorAll(".nav button").forEach(b => b.onclick = () => { S.page = b.dataset.p; S.busca = ""; S.filtroCat = "Todos"; S.filtroSt = "Todos"; render(); scrollTo(0, 0); });
   $("#fMes") && ($("#fMes").onchange = e => { S.mes = +e.target.value; render(); });
   $("#fAno") && ($("#fAno").onchange = e => { S.ano = +e.target.value; render(); });
   bind();
+  ligarTema();
   atualizarInstalar();
 }
 
@@ -193,9 +238,9 @@ function home() {
   const te = sum(ent), ts = sum(sai), ti = sum(inv), aberto = sum(sai.filter(r => r.status === "Em aberto"));
   const porMes = k => Array.from({ length: 12 }, (_, i) => sum(doTipo(k).filter(r => r.ano === S.ano && r.mes === i + 1)));
   const eM = porMes("entrada"), sM = porMes("saida");
-  const metas = [["Essencial", sum(sai.filter(r => r.categoria === "Essencial")), S.metas.essencial, "#6C5CE7,#B04DFF"],
-                 ["Lazer", sum(sai.filter(r => r.categoria === "Lazer")), S.metas.lazer, "#FF4D9D,#FF7A59"],
-                 ["Investimento", ti, S.metas.investimento, "#3DD9EB,#3D7BFF"]];
+  const metas = [["Essencial", sum(sai.filter(r => r.categoria === "Essencial")), S.metas.essencial, "var(--m1),var(--m1)"],
+                 ["Lazer", sum(sai.filter(r => r.categoria === "Lazer")), S.metas.lazer, "var(--m2),var(--m2)"],
+                 ["Investimento", ti, S.metas.investimento, "var(--m3),var(--m3)"]];
   const h = S.hover;
   return cards([["Entradas", brl(te), `${ent.length} lançamentos`], ["Saídas", brl(ts), `${sai.length} lançamentos`],
       ["Resultado", brl(te - ts), te > 0 ? ((te - ts) / te * 100).toFixed(0) + "% das entradas" : ""], ["Em aberto", brl(aberto), "saídas a pagar"]]) + `
@@ -207,7 +252,7 @@ function home() {
       ${te <= 0 ? `<div class="empty">Sem entradas no período.</div>` : metas.map(([n, g, m, grad]) => {
         const meta = te * m / 100, r = meta > 0 ? g / meta : 0, over = g > meta;
         return `<div style="margin-top:14px"><div style="display:flex;justify-content:space-between;font-size:14px;font-weight:600"><span>${n} · meta ${m}%</span><span>${brl(g)} / ${brl(meta)}</span></div>
-          <div class="bar"><i style="width:${Math.min(100, r * 100)}%;background:${over ? "linear-gradient(90deg,#FF4D4D,#FF8A5C)" : `linear-gradient(90deg,${grad})`}"></i></div>
+          <div class="bar"><i style="width:${Math.min(100, r * 100)}%;background:${over ? "var(--sai)" : `linear-gradient(90deg,${grad})`}"></i></div>
           <div class="sub">${over ? "Acima da meta em " + brl(g - meta) : "Restam " + brl(meta - g)}</div></div>`;
       }).join("")}
     </div>`;
@@ -218,12 +263,12 @@ function chart(e, s) {
   const y = v => H - 24 - (v / top) * (H - 44);
   const bars = e.map((_, i) => {
     const x = X0 + i * bw, w = bw * .3, on = S.hover === i;
-    return `<g data-m="${i}" style="cursor:pointer"><rect x="${x}" y="0" width="${bw}" height="${H}" fill="${on ? "rgba(255,255,255,.08)" : "transparent"}"/>
-      <rect x="${x + bw * .18}" y="${y(e[i])}" width="${w}" height="${H - 24 - y(e[i])}" rx="3" fill="#3DD9EB"/>
-      <rect x="${x + bw * .52}" y="${y(s[i])}" width="${w}" height="${H - 24 - y(s[i])}" rx="3" fill="#FF7AA8"/>
-      <text x="${x + bw / 2}" y="${H - 6}" text-anchor="middle" font-size="11" fill="${on ? "#fff" : "#B9B6DC"}">${MESES[i]}</text></g>`;
+    return `<g data-m="${i}" style="cursor:pointer"><rect x="${x}" y="0" width="${bw}" height="${H}" style="fill:${on ? "var(--hover)" : "transparent"}"/>
+      <rect x="${x + bw * .18}" y="${y(e[i])}" width="${w}" height="${H - 24 - y(e[i])}" rx="3" style="fill:var(--ent)"/>
+      <rect x="${x + bw * .52}" y="${y(s[i])}" width="${w}" height="${H - 24 - y(s[i])}" rx="3" style="fill:var(--sai)"/>
+      <text x="${x + bw / 2}" y="${H - 6}" text-anchor="middle" font-size="11" style="fill:${on ? "var(--text)" : "var(--muted)"}">${MESES[i]}</text></g>`;
   }).join("");
-  const ticks = [0, 1, 2, 3].map(k => { const v = top / 3 * k; return `<line x1="${X0}" x2="${W}" y1="${y(v)}" y2="${y(v)}" stroke="rgba(255,255,255,.12)"/><text x="${X0 - 6}" y="${y(v) + 4}" text-anchor="end" font-size="11" fill="#B9B6DC">${v >= 1000 ? (v / 1000).toFixed(1).replace(".0", "") + "k" : Math.round(v)}</text>`; }).join("");
+  const ticks = [0, 1, 2, 3].map(k => { const v = top / 3 * k; return `<line x1="${X0}" x2="${W}" y1="${y(v)}" y2="${y(v)}" style="stroke:var(--line)"/><text x="${X0 - 6}" y="${y(v) + 4}" text-anchor="end" font-size="11" style="fill:var(--muted)">${v >= 1000 ? (v / 1000).toFixed(1).replace(".0", "") + "k" : Math.round(v)}</text>`; }).join("");
   return `<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="Gráfico de barras de entradas e saídas por mês">${ticks}${bars}</svg>
     <div class="sub" style="display:flex;gap:16px"><span style="color:var(--ent)">■ Entradas</span><span style="color:var(--sai)">■ Saídas</span></div>`;
 }
@@ -255,8 +300,8 @@ function lista(tipo) {
         <div class="m">${[ehSub ? "" : MESES[r.mes - 1] + "/" + r.ano, r.categoria, r.dia ? "dia " + r.dia : ""].filter(Boolean).join(" · ")}</div></div>
       ${r.status ? `<button class="tag ${r.status === "Pago" || r.status === "Ativa" ? "ok" : "open"}" data-st="${r.id}" title="Alternar status">${esc(r.status)}</button>` : ""}
       <div class="val">${brl(r.valor)}</div>
-      <button class="icon" data-ed="${r.id}" aria-label="Editar">✏️</button>
-      <button class="icon" data-del="${r.id}" aria-label="Excluir">🗑️</button></div>`).join("") : `<div class="empty">Nada por aqui ainda. Toque em “+ Novo”.</div>`}
+      <button class="icon" data-ed="${r.id}" aria-label="Editar">${ico("editar")}</button>
+      <button class="icon" data-del="${r.id}" aria-label="Excluir">${ico("lixo")}</button></div>`).join("") : `<div class="empty">Nada por aqui ainda. Toque em “+ Novo”.</div>`}
   </div>`;
 }
 
@@ -271,7 +316,7 @@ function config() {
     <div class="panel"><h2>Lançamentos recorrentes</h2><p class="sub">Contas que se repetem todo mês. Gere de uma vez para o mês escolhido.</p>
       <div class="filters" style="margin:10px 0"><button class="btn" id="gerar">Gerar ${S.mes < 0 ? "mês atual" : MESES_F[S.mes - 1] + "/" + S.ano}</button><button class="btn ghost" id="novoRec">+ Recorrente</button></div>
       ${S.recs.length ? S.recs.map(r => `<div class="row"><div class="main"><div class="n">${esc(r.nome)}</div><div class="m">${tl[r.tipo]} · ${esc(r.categoria || "")}${r.dia ? " · dia " + r.dia : ""}</div></div>
-        <div class="val">${brl(r.valor)}</div><button class="icon" data-delrec="${r.id}" aria-label="Excluir">🗑️</button></div>`).join("") : `<div class="empty">Nenhum recorrente cadastrado.</div>`}</div>
+        <div class="val">${brl(r.valor)}</div><button class="icon" data-delrec="${r.id}" aria-label="Excluir">${ico("lixo")}</button></div>`).join("") : `<div class="empty">Nenhum recorrente cadastrado.</div>`}</div>
     <div class="panel"><h2>Importar CSV</h2><p class="sub">Colunas: tipo;ano;mes;nome;valor;categoria;status;dia (veja <b>historico.csv</b>). Tipos: saida, entrada, invest, assinatura.</p>
       <input type="file" id="csv" accept=".csv,text/csv" style="margin-top:12px"></div>
     <div class="panel"><h2>Conta</h2><p class="sub">${esc(S.user.email)}</p>

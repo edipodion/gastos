@@ -1,6 +1,6 @@
 // Service worker: guarda só o "casco" do app para ele abrir mesmo sem internet.
 // Chamadas ao Supabase nunca passam pelo cache, então os dados são sempre os do banco.
-const CACHE = "gastos-casco-1.3.1";
+const CACHE = "gastos-casco-1.4.0";
 const CASCO = ["./", "index.html", "config.js", "manifest.webmanifest", "icon.svg", "icon-192.png", "icon-512.png"];
 
 self.addEventListener("install", e => {

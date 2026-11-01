@@ -165,8 +165,9 @@ function ligarTema() {
 }
 
 /* Novidades: a cada atualização, acrescente a versão nova NO TOPO da lista e ajuste VERSAO. */
-const VERSAO = "1.5.1";
+const VERSAO = "1.5.2";
 const NOVIDADES = [
+  { v: "1.5.2", data: "01/11/2026", itens: ["Parcelas: agora há o campo \"Vence dia\". A fatura vence no mês seguinte ao fechamento, e as parcelas restantes seguem o vencimento. Ao editar compras antigas, preencha o dia do vencimento"] },
   { v: "1.5.1", data: "31/10/2026", itens: ["O app agora se chama SobrouDinheiro?"] },
   { v: "1.5.0", data: "31/10/2026", itens: ["Nova página Parceladas: acompanhe compras no cartão, parcelas restantes e quanto falta pagar (não entram no total da Visão geral)"] },
   { v: "1.4.1", data: "31/10/2026", itens: ["Corrigido: o botão de importar CSV, em Ajustes, não sai mais da caixa no celular"] },
@@ -328,11 +329,12 @@ function lista(tipo) {
 
 /* ---------- compras parceladas ---------- */
 const dataBR = iso => iso.split("-").reverse().join("/");
-/* A 1ª parcela cai na fatura que fecha em/depois da compra; uma parcela conta como "faturada" quando o fechamento já passou. */
+/* Compra até o dia que o cartão vira entra na fatura do mês; depois disso, na do mês seguinte.
+   A fatura vence no mês SEGUINTE ao do fechamento; a parcela conta como paga quando o vencimento já passou. */
 function calcParc(p, ref = new Date()) {
-  const [a, m, d] = p.data_compra.split("-").map(Number), n = +p.parcelas, f = +p.dia_fechamento;
-  const m0 = a * 12 + (m - 1) + (d > f ? 1 : 0);
-  const fecha = k => { const t = m0 + k, y = Math.floor(t / 12), mm = t % 12; return new Date(y, mm, Math.min(f, new Date(y, mm + 1, 0).getDate())); };
+  const [a, m, d] = p.data_compra.split("-").map(Number), n = +p.parcelas, f = +p.dia_fechamento, dv = +p.dia_vencimento || f;
+  const m0 = a * 12 + (m - 1) + (d > f ? 1 : 0) + 1;
+  const fecha = k => { const t = m0 + k, y = Math.floor(t / 12), mm = t % 12; return new Date(y, mm, Math.min(dv, new Date(y, mm + 1, 0).getDate())); };
   const h = new Date(ref.getFullYear(), ref.getMonth(), ref.getDate());
   let pagas = 0; while (pagas < n && fecha(pagas) < h) pagas++;
   const v = Number(p.valor_total) / n, ult = fecha(n - 1);
@@ -357,8 +359,8 @@ function parceladas() {
       <div class="bar"><i style="width:${c.pagas / c.n * 100}%;background:var(--m1)"></i></div>
       <div class="det">
         <span>Falta pagar <b>${brl(c.falta)}</b></span><span>Total <b>${brl(p.valor_total)}</b></span>
-        <span>Compra <b>${dataBR(p.data_compra)}</b></span><span>Vira dia <b>${p.dia_fechamento}</b></span>
-        <span>${c.proxima ? `Próxima fatura <b>${String(c.proxima.getDate()).padStart(2, "0")}/${String(c.proxima.getMonth() + 1).padStart(2, "0")}</b>` : ""}</span><span>Última parcela <b>${c.fim}</b></span>
+        <span>Compra <b>${dataBR(p.data_compra)}</b></span><span>Vira dia <b>${p.dia_fechamento}</b> · vence <b>${p.dia_vencimento || "?"}</b></span>
+        <span>${c.proxima ? `Próx. vencimento <b>${String(c.proxima.getDate()).padStart(2, "0")}/${String(c.proxima.getMonth() + 1).padStart(2, "0")}</b>` : ""}</span><span>Última parcela <b>${c.fim}</b></span>
       </div></div>`).join("") : `<div class="empty">Nenhuma compra parcelada. Toque em “+ Nova”.</div>`}
   </div>`;
 }
@@ -370,11 +372,13 @@ function formParc(r) {
     <datalist id="cartoes">${cartoes.map(c => `<option value="${esc(c)}">`).join("")}</datalist>
     <label>Data da compra<input class="fld" name="data_compra" type="date" required value="${r?.data_compra ?? new Date().toLocaleDateString("sv")}"></label>
     <div class="two"><label>Parcelas<input class="fld" name="parcelas" type="number" min="2" max="60" required value="${r?.parcelas ?? ""}"></label>
-      <label>Vira dia<input class="fld" name="dia_fechamento" type="number" min="1" max="31" required value="${r?.dia_fechamento ?? ""}"></label></div>
-    <label>Valor total (R$)<input class="fld" name="valor_total" required inputmode="decimal" value="${r ? String(r.valor_total).replace(".", ",") : ""}"></label>`,
+      <label>Valor total (R$)<input class="fld" name="valor_total" required inputmode="decimal" value="${r ? String(r.valor_total).replace(".", ",") : ""}"></label></div>
+    <div class="two"><label>Cartão vira dia<input class="fld" name="dia_fechamento" type="number" min="1" max="31" required value="${r?.dia_fechamento ?? ""}"></label>
+      <label>Vence dia<input class="fld" name="dia_vencimento" type="number" min="1" max="31" required value="${r?.dia_vencimento ?? ""}"></label></div>
+    <p class="sub">A fatura vence no mês seguinte ao fechamento.</p>`,
   async f => {
     const valor = num(f.get("valor_total")); if (isNaN(valor) || valor <= 0) return "Valor inválido";
-    const row = { nome: f.get("nome").trim(), cartao: f.get("cartao").trim() || null, data_compra: f.get("data_compra"), parcelas: +f.get("parcelas"), dia_fechamento: +f.get("dia_fechamento"), valor_total: valor };
+    const row = { nome: f.get("nome").trim(), cartao: f.get("cartao").trim() || null, data_compra: f.get("data_compra"), parcelas: +f.get("parcelas"), dia_fechamento: +f.get("dia_fechamento"), dia_vencimento: +f.get("dia_vencimento"), valor_total: valor };
     if (r) await run(sb.from("parceladas").update(row).eq("id", r.id), "Atualizado");
     else await run(sb.from("parceladas").insert(row), "Adicionado");
     await load();

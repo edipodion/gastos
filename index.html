@@ -165,8 +165,9 @@ function ligarTema() {
 }
 
 /* Novidades: a cada atualização, acrescente a versão nova NO TOPO da lista e ajuste VERSAO. */
-const VERSAO = "1.5.2";
+const VERSAO = "1.5.3";
 const NOVIDADES = [
+  { v: "1.5.3", data: "01/11/2026", itens: ["Parcelas: a parcela passa a contar como paga no próprio dia do vencimento"] },
   { v: "1.5.2", data: "01/11/2026", itens: ["Parcelas: agora há o campo \"Vence dia\". A fatura vence no mês seguinte ao fechamento, e as parcelas restantes seguem o vencimento. Ao editar compras antigas, preencha o dia do vencimento"] },
   { v: "1.5.1", data: "31/10/2026", itens: ["O app agora se chama SobrouDinheiro?"] },
   { v: "1.5.0", data: "31/10/2026", itens: ["Nova página Parceladas: acompanhe compras no cartão, parcelas restantes e quanto falta pagar (não entram no total da Visão geral)"] },
@@ -330,13 +331,13 @@ function lista(tipo) {
 /* ---------- compras parceladas ---------- */
 const dataBR = iso => iso.split("-").reverse().join("/");
 /* Compra até o dia que o cartão vira entra na fatura do mês; depois disso, na do mês seguinte.
-   A fatura vence no mês SEGUINTE ao do fechamento; a parcela conta como paga quando o vencimento já passou. */
+   A fatura vence no mês SEGUINTE ao do fechamento; a parcela conta como paga a partir do dia do vencimento. */
 function calcParc(p, ref = new Date()) {
   const [a, m, d] = p.data_compra.split("-").map(Number), n = +p.parcelas, f = +p.dia_fechamento, dv = +p.dia_vencimento || f;
   const m0 = a * 12 + (m - 1) + (d > f ? 1 : 0) + 1;
   const fecha = k => { const t = m0 + k, y = Math.floor(t / 12), mm = t % 12; return new Date(y, mm, Math.min(dv, new Date(y, mm + 1, 0).getDate())); };
   const h = new Date(ref.getFullYear(), ref.getMonth(), ref.getDate());
-  let pagas = 0; while (pagas < n && fecha(pagas) < h) pagas++;
+  let pagas = 0; while (pagas < n && fecha(pagas) <= h) pagas++;
   const v = Number(p.valor_total) / n, ult = fecha(n - 1);
   return { n, pagas, restam: n - pagas, v, falta: (n - pagas) * v, proxima: pagas < n ? fecha(pagas) : null, fim: MESES[ult.getMonth()] + "/" + String(ult.getFullYear()).slice(2) };
 }
